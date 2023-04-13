@@ -10,6 +10,8 @@ github.com/gwaylib/errors v0.0.0-20190905023356-162e59439c92/go.mod h1:+HS/JYB/L
 github.com/gwaylib/errors v0.0.0-20211126090330-1931a9c4fe20/go.mod h1:+HS/JYB/LwqAWsVPCZHFYhwdDiQ/N2kuUqhYD44tfpY=
 github.com/gwaylib/errors v0.0.0-20230225020640-41299698202b h1:ZciekNjJfTJQCJm5pk7teX2X0nr7JSJfk9JwmgUb5WY=
 github.com/gwaylib/errors v0.0.0-20230225020640-41299698202b/go.mod h1:+HS/JYB/LwqAWsVPCZHFYhwdDiQ/N2kuUqhYD44tfpY=
+github.com/gwaylib/hardware/bindcpu v0.0.0-20230413010537-5e7a17ecd7eb h1:ZVK7MQ3wYq2T/t3ZerMu77WB7L/6paT5Um605hF39gU=
+github.com/gwaylib/hardware/bindcpu v0.0.0-20230413010537-5e7a17ecd7eb/go.mod h1:d5/oRD6nZnDALFXO0H01wQG/0cL9mx3hgtNKa2XrNvE=
 github.com/gwaylib/log v0.0.0-20190829041528-b6c28711ef53/go.mod h1:FwuJtWmicMfzgmySG/QzJZL5J5qiMULuWgvT4qXZTgI=
 github.com/gwaylib/log v0.0.0-20220419073537-947266e45ac7/go.mod h1:zq3Y/bzQMZotPXanUMhOZUlMpBTbEeVzen94rNUIY1I=
 github.com/gwaylib/log v0.0.0-20220419074212-f1aa63899ff1 h1:jA9qm/p3dJBbC0oC2aSIuhJGd6DqrpiePjHdcMvy/tE=
@@ -45,6 +47,8 @@ golang.org/x/sys v0.0.0-20210927094055-39ccf1dd6fa6/go.mod h1:oPkhp1MJrh7nUepCBc
 golang.org/x/sys v0.0.0-20211103235746-7861aae1554b/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.0.0-20220412211240-33da011f77ad h1:ntjMns5wyP/fN65tdBD4g8J5w8n015+iIIs9rtjXkY0=
 golang.org/x/sys v0.0.0-20220412211240-33da011f77ad/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/sys v0.7.0 h1:3jlCCIQZPdOYu1h8BkNvLz8Kgwtae2cagcG/VamtZRU=
+golang.org/x/sys v0.7.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
