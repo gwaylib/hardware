@@ -241,50 +241,33 @@ func AssertGPU(ctx context.Context) {
 	// assert gpu for release mode
 	// only the develop mode don't need gpu
 	if NeedGPU() && !HasGPU(ctx) {
-		log.Fatalf("os exit by gpu not found(BELLMAN_NO_GPU=%s, FIL_PROOFS_GPU_MODE=%s)", os.Getenv("BELLMAN_NO_GPU"), os.Getenv("FIL_PROOFS_GPU_MODE"))
+		log.Fatalf("os exit by gpu not found")
 		time.Sleep(3e9)
 		os.Exit(-1)
 	}
 }
 
 // bind gpu, if 'NEPTUNE_DEFAULT_GPU_IDX' is set
-func BindGPU(ctx context.Context) {
-	defaultGPUEnv := os.Getenv("NEPTUNE_DEFAULT_GPU")
-	if len(defaultGPUEnv) > 0 {
-		// alreay set
-		return
-	}
-
-	envIdxStr := os.Getenv("NEPTUNE_DEFAULT_GPU_IDX")
-	if len(envIdxStr) == 0 {
-		// GPU_IDX not set, using default
-		return
-	}
-
-	envIdx, err := strconv.Atoi(envIdxStr)
-	if err != nil {
-		log.Warn(errors.As(err, envIdxStr))
-		return
-	}
+func BindGPU(ctx context.Context, idx int) {
 	if err := initGpuGroup(ctx); err != nil {
-		log.Warn(errors.As(err, envIdxStr))
+		log.Warn(errors.As(err, idx))
 		return
 	}
 
 	gpuLock.Lock()
 	defer gpuLock.Unlock()
-	if len(gpuGroup) <= envIdx {
-		log.Warn(errors.New("NEPTUNE_DEFAULT_GPU_IDX is out of gpu pool"))
+	if len(gpuGroup) <= idx {
+		log.Warn(errors.New("idx is out of gpu pool"))
 		return
 	}
-	gpuInfo := gpuGroup[envIdx]
+	gpuInfo := gpuGroup[idx]
 
 	os.Setenv("NEPTUNE_DEFAULT_GPU", gpuInfo.UniqueID())
 	// https://filecoinproject.slack.com/archives/CR98WERRN/p1672367336271889
 	if len(os.Getenv("NVIDIA_VISIBLE_DEVICES")) == 0 {
-		os.Setenv("NVIDIA_VISIBLE_DEVICES", envIdxStr)
+		os.Setenv("NVIDIA_VISIBLE_DEVICES", strconv.Itoa(idx))
 	}
 	if len(os.Getenv("CUDA_VISIBLE_DEVICES")) == 0 {
-		os.Setenv("CUDA_VISIBLE_DEVICES", envIdxStr)
+		os.Setenv("CUDA_VISIBLE_DEVICES", strconv.Itoa(idx))
 	}
 }

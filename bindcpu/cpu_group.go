@@ -158,34 +158,15 @@ func (ak *CpuAllocateKey) Key() string {
 }
 
 type CpuAllocateVal struct {
-	cpus []int
+	Cpus []int
 
 	allocated bool
-	conn      net.Conn
-}
-
-func NewCpuAllocateVal(cpus []int, conn net.Conn) *CpuAllocateVal {
-	return &CpuAllocateVal{
-		cpus: cpus,
-		conn: conn,
-	}
-}
-func (val *CpuAllocateVal) SetConn(conn net.Conn) {
-	val.conn = conn
-}
-func (val *CpuAllocateVal) GetConn() net.Conn {
-	return val.conn
-}
-func (val *CpuAllocateVal) CloseConn() error {
-	if val.conn != nil {
-		return val.conn.Close()
-	}
-	return nil
+	Conn      net.Conn
 }
 
 func (val *CpuAllocateVal) CpuStr() []string {
-	result := make([]string, len(val.cpus))
-	for i, c := range val.cpus {
+	result := make([]string, len(val.Cpus))
+	for i, c := range val.Cpus {
 		result[i] = strconv.Itoa(c)
 	}
 	return result
@@ -291,10 +272,10 @@ func CloseCpuConn(key *CpuAllocateKey) {
 	if !ok {
 		return
 	}
-	if aVal.conn != nil {
-		aVal.conn.Close()
+	if aVal.Conn != nil {
+		aVal.Conn.Close()
 	}
-	aVal.conn = nil
+	aVal.Conn = nil
 	cpuAllocatePool[aKey] = aVal
 }
 
@@ -311,14 +292,14 @@ func useL3CPU(ctx context.Context, l3Index int) ([]string, error) {
 		aVal, ok := cpuAllocatePool[aKey]
 		if !ok {
 			aVal = CpuAllocateVal{
-				cpus: cpuGroupSort[i][l3Index],
+				Cpus: cpuGroupSort[i][l3Index],
 			}
 		}
 		// new allocation
 		aVal.allocated = true
 		cpuAllocatePool[aKey] = aVal
 
-		for _, cpu := range aVal.cpus {
+		for _, cpu := range aVal.Cpus {
 			result = append(result, strconv.Itoa(cpu))
 		}
 	}
@@ -428,7 +409,7 @@ func AllocateCpu(ctx context.Context, l3Index, l3Length int, desc bool) (*CpuAll
 				aVal, ok := cpuAllocatePool[aKey] // aVal is a copy
 				if !ok {
 					aVal = CpuAllocateVal{
-						cpus: cpuGroupSort[i][j],
+						Cpus: cpuGroupSort[i][j],
 					}
 				}
 				if aVal.allocated {
@@ -452,7 +433,7 @@ func AllocateCpu(ctx context.Context, l3Index, l3Length int, desc bool) (*CpuAll
 				aVal, ok := cpuAllocatePool[aKey] // aVal is a copy
 				if !ok {
 					aVal = CpuAllocateVal{
-						cpus: cpuGroupSort[i][j],
+						Cpus: cpuGroupSort[i][j],
 					}
 				}
 				if aVal.allocated {
