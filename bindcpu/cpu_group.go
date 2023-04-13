@@ -158,15 +158,22 @@ func (ak *CpuAllocateKey) Key() string {
 }
 
 type CpuAllocateVal struct {
-	Cpus []int
+	cpus []int
 
 	allocated bool
 	unixConn  net.Conn
 }
 
+func NewCpuAllocateVal(cpus []int, unixConn net.Conn) *CpuAllocateVal {
+	return &CpuAllocateVal{
+		cpus:     cpus,
+		unixConn: unixConn,
+	}
+}
+
 func (val *CpuAllocateVal) CpuStr() []string {
-	result := make([]string, len(val.Cpus))
-	for i, c := range val.Cpus {
+	result := make([]string, len(val.cpus))
+	for i, c := range val.cpus {
 		result[i] = strconv.Itoa(c)
 	}
 	return result
@@ -292,14 +299,14 @@ func useL3CPU(ctx context.Context, l3Index int) ([]string, error) {
 		aVal, ok := cpuAllocatePool[aKey]
 		if !ok {
 			aVal = CpuAllocateVal{
-				Cpus: cpuGroupSort[i][l3Index],
+				cpus: cpuGroupSort[i][l3Index],
 			}
 		}
 		// new allocation
 		aVal.allocated = true
 		cpuAllocatePool[aKey] = aVal
 
-		for _, cpu := range aVal.Cpus {
+		for _, cpu := range aVal.cpus {
 			result = append(result, strconv.Itoa(cpu))
 		}
 	}
@@ -409,7 +416,7 @@ func AllocateCpu(ctx context.Context, l3Index, l3Length int, desc bool) (*CpuAll
 				aVal, ok := cpuAllocatePool[aKey] // aVal is a copy
 				if !ok {
 					aVal = CpuAllocateVal{
-						Cpus: cpuGroupSort[i][j],
+						cpus: cpuGroupSort[i][j],
 					}
 				}
 				if aVal.allocated {
@@ -433,7 +440,7 @@ func AllocateCpu(ctx context.Context, l3Index, l3Length int, desc bool) (*CpuAll
 				aVal, ok := cpuAllocatePool[aKey] // aVal is a copy
 				if !ok {
 					aVal = CpuAllocateVal{
-						Cpus: cpuGroupSort[i][j],
+						cpus: cpuGroupSort[i][j],
 					}
 				}
 				if aVal.allocated {
