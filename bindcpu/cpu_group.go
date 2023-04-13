@@ -161,14 +161,26 @@ type CpuAllocateVal struct {
 	cpus []int
 
 	allocated bool
-	unixConn  net.Conn
+	conn      net.Conn
 }
 
-func NewCpuAllocateVal(cpus []int, unixConn net.Conn) *CpuAllocateVal {
+func NewCpuAllocateVal(cpus []int, conn net.Conn) *CpuAllocateVal {
 	return &CpuAllocateVal{
-		cpus:     cpus,
-		unixConn: unixConn,
+		cpus: cpus,
+		conn: conn,
 	}
+}
+func (val *CpuAllocateVal) SetConn(conn net.Conn) {
+	val.conn = conn
+}
+func (val *CpuAllocateVal) GetConn() net.Conn {
+	return val.conn
+}
+func (val *CpuAllocateVal) CloseConn() error {
+	if val.conn != nil {
+		return val.conn.Close()
+	}
+	return nil
 }
 
 func (val *CpuAllocateVal) CpuStr() []string {
@@ -279,10 +291,10 @@ func CloseCpuConn(key *CpuAllocateKey) {
 	if !ok {
 		return
 	}
-	if aVal.unixConn != nil {
-		aVal.unixConn.Close()
+	if aVal.conn != nil {
+		aVal.conn.Close()
 	}
-	aVal.unixConn = nil
+	aVal.conn = nil
 	cpuAllocatePool[aKey] = aVal
 }
 
