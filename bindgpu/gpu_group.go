@@ -170,7 +170,7 @@ func init() {
 }
 
 // TODO: limit call frequency
-func hasGPU(ctx context.Context) bool {
+func HasGPU(ctx context.Context) bool {
 	gpuLock.Lock()
 	defer gpuLock.Unlock()
 	gpus, err := GroupGpu(ctx)
@@ -180,11 +180,11 @@ func hasGPU(ctx context.Context) bool {
 	return len(gpus) > 0
 }
 
-func needGPU() bool {
+func NeedGPU() bool {
 	return os.Getenv("BELLMAN_NO_GPU") != "1" && os.Getenv("FIL_PROOFS_GPU_MODE") == "force"
 }
 
-func allocateGPU(ctx context.Context) (*GpuAllocateKey, *GpuInfo, error) {
+func AllocateGPU(ctx context.Context) (*GpuAllocateKey, *GpuInfo, error) {
 	if err := initGpuGroup(ctx); err != nil {
 		log.Warn(errors.As(err))
 		//return nil, nil, errors.As(err)
@@ -209,16 +209,16 @@ func allocateGPU(ctx context.Context) (*GpuAllocateKey, *GpuInfo, error) {
 			return ak, &gpuGroup[j], nil
 		}
 	}
-	if len(gpuGroup) == 0 || !needGPU() {
+	if len(gpuGroup) == 0 || !NeedGPU() {
 		// using cpu when no gpu hardware
 		return &GpuAllocateKey{}, &GpuInfo{}, nil
 	}
 	return nil, nil, errors.New("allocate gpu failed").As(gpuKeys, gpuGroup)
 }
 
-func syncAllocateGPU(ctx context.Context) (*GpuAllocateKey, *GpuInfo) {
+func SyncAllocateGPU(ctx context.Context) (*GpuAllocateKey, *GpuInfo) {
 	for {
-		ak, group, err := allocateGPU(ctx)
+		ak, group, err := AllocateGPU(ctx)
 		if err != nil {
 			log.Warn("allocate gpu failed, retry 1s later. ", errors.As(err))
 			time.Sleep(1e9)
@@ -228,7 +228,7 @@ func syncAllocateGPU(ctx context.Context) (*GpuAllocateKey, *GpuInfo) {
 	}
 }
 
-func returnGPU(key *GpuAllocateKey) {
+func ReturnGPU(key *GpuAllocateKey) {
 	gpuLock.Lock()
 	defer gpuLock.Unlock()
 	if key == nil {
@@ -240,7 +240,7 @@ func returnGPU(key *GpuAllocateKey) {
 func AssertGPU(ctx context.Context) {
 	// assert gpu for release mode
 	// only the develop mode don't need gpu
-	if needGPU() && !hasGPU(ctx) {
+	if NeedGPU() && !HasGPU(ctx) {
 		log.Fatalf("os exit by gpu not found(BELLMAN_NO_GPU=%s, FIL_PROOFS_GPU_MODE=%s)", os.Getenv("BELLMAN_NO_GPU"), os.Getenv("FIL_PROOFS_GPU_MODE"))
 		time.Sleep(3e9)
 		os.Exit(-1)
