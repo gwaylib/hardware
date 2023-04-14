@@ -306,6 +306,22 @@ func useL3CPU(ctx context.Context, l3Index int) ([]string, error) {
 	return result, nil
 }
 
+func UseL3CPU(ctx context.Context, l3Index int) ([]string, error) {
+	if err := initCpuGroup(ctx); err != nil {
+		return nil, errors.As(err)
+	}
+
+	cpuSetLock.Lock()
+	if l3Index >= len(cpuGroupSort[0]) {
+		cpuSetLock.Unlock()
+		//panic(fmt.Sprintf("l3 id out of range :%d,%d", l3Index, len(cpuGroupSort[0])))
+		return UseL3AllCPU(ctx)
+	}
+	defer cpuSetLock.Unlock()
+
+	return useL3CPU(ctx, l3Index)
+}
+
 func UseL3AllCPU(ctx context.Context) ([]string, error) {
 	if err := initCpuGroup(ctx); err != nil {
 		return nil, errors.As(err)
@@ -323,22 +339,6 @@ func UseL3AllCPU(ctx context.Context) ([]string, error) {
 		result = append(result, r...)
 	}
 	return result, nil
-}
-
-func UseL3CPU(ctx context.Context, l3Index int) ([]string, error) {
-	if err := initCpuGroup(ctx); err != nil {
-		return nil, errors.As(err)
-	}
-
-	cpuSetLock.Lock()
-	if l3Index >= len(cpuGroupSort[0]) {
-		cpuSetLock.Unlock()
-		//panic(fmt.Sprintf("l3 id out of range :%d,%d", l3Index, len(cpuGroupSort[0])))
-		return UseL3AllCPU(ctx)
-	}
-	defer cpuSetLock.Unlock()
-
-	return useL3CPU(ctx, l3Index)
 }
 
 func OrderAllCpu(ctx context.Context, coreIndex, coreLength int, desc bool) (CpuGroupInfo, string, error) {
@@ -423,7 +423,7 @@ func AllocateCpu(ctx context.Context, l3Index, l3Length int, desc bool) (*CpuAll
 		}
 	} else {
 		start := l3Index - 1
-		for i := 0; i < len(cpuGroupSort); i++ {
+		for i := len(cpuGroupSort) - 1; i > -1; i-- {
 			for j := end - 1; j > start; j-- {
 				ak := &CpuAllocateKey{
 					CoreIndex: i,
