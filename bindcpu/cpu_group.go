@@ -284,6 +284,9 @@ func useL3CPU(ctx context.Context, l3Index int) ([]string, error) {
 
 	result := []string{}
 	for i := 0; i < len(cpuGroupSort); i++ {
+		if len(cpuGroupSort[i]) <= l3Index {
+			continue
+		}
 		ak := &CpuAllocateKey{
 			CoreIndex: i,
 			L3Index:   l3Index,
@@ -361,6 +364,9 @@ func OrderAllCpu(ctx context.Context, coreIndex, coreLength int, desc bool) (Cpu
 	if desc {
 		start := coreIndex - 1
 		for i := 0; i < len(cpuGroupSort); i++ {
+			if len(cpuGroupSort[i]) <= end {
+				continue
+			}
 			for j := end - 1; j > start; j-- {
 				for _, cpu := range cpuGroupSort[i][j] {
 					buf.WriteString(fmt.Sprintf(",%d", cpu))
@@ -369,6 +375,9 @@ func OrderAllCpu(ctx context.Context, coreIndex, coreLength int, desc bool) (Cpu
 		}
 	} else {
 		for i := 0; i < len(cpuGroupSort); i++ {
+			if len(cpuGroupSort[i]) <= end {
+				continue
+			}
 			for j := coreIndex; j < end; j++ {
 				for _, cpu := range cpuGroupSort[i][j] {
 					buf.WriteString(fmt.Sprintf(",%d", cpu))
