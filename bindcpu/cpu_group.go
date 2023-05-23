@@ -364,7 +364,7 @@ func OrderAllCpu(ctx context.Context, coreIndex, coreLength int, desc bool) (Cpu
 	if desc {
 		start := coreIndex - 1
 		for i := 0; i < len(cpuGroupSort); i++ {
-			if len(cpuGroupSort[i]) <= end {
+			if len(cpuGroupSort[i]) < end-1 {
 				continue
 			}
 			for j := end - 1; j > start; j-- {
@@ -375,7 +375,7 @@ func OrderAllCpu(ctx context.Context, coreIndex, coreLength int, desc bool) (Cpu
 		}
 	} else {
 		for i := 0; i < len(cpuGroupSort); i++ {
-			if len(cpuGroupSort[i]) <= end {
+			if len(cpuGroupSort[i]) < end {
 				continue
 			}
 			for j := coreIndex; j < end; j++ {
@@ -409,6 +409,9 @@ func AllocateCpu(ctx context.Context, l3Index, l3Length int, desc bool) (*CpuAll
 
 	if desc {
 		for i := 0; i < len(cpuGroupSort); i++ {
+			if len(cpuGroupSort[i]) < end-1 {
+				continue
+			}
 			for j := l3Index; j < end; j++ {
 				ak := &CpuAllocateKey{
 					CoreIndex: i,
@@ -433,6 +436,9 @@ func AllocateCpu(ctx context.Context, l3Index, l3Length int, desc bool) (*CpuAll
 	} else {
 		start := l3Index - 1
 		for i := len(cpuGroupSort) - 1; i > -1; i-- {
+			if len(cpuGroupSort[i]) < end-1 {
+				continue
+			}
 			for j := end - 1; j > start; j-- {
 				ak := &CpuAllocateKey{
 					CoreIndex: i,
@@ -485,6 +491,14 @@ func ReturnCpu(key *CpuAllocateKey) error {
 	aVal.allocated = false
 	cpuAllocatePool[aKey] = aVal
 	return nil
+}
+func ReturnAllCpu() {
+	cpuSetLock.Lock()
+	defer cpuSetLock.Unlock()
+	for key, val := range cpuAllocatePool {
+		val.allocated = false
+		cpuAllocatePool[key] = val
+	}
 }
 
 // pin golang thread
