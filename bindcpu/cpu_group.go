@@ -3,18 +3,16 @@ package bindcpu
 import (
 	"bytes"
 	"context"
-	"encoding/csv"
 	"fmt"
 	"net"
-	"os/exec"
 	"runtime"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/gwaylib/errors"
 	"github.com/gwaylib/log"
+	"github.com/shirou/gopsutil/cpu"
 	"golang.org/x/sys/unix"
 )
 
@@ -38,45 +36,28 @@ type CpuGroupInfo struct {
 
 // return total cores and group detail
 func groupCpuBySocket(ctx context.Context) (*CpuGroupInfo, error) {
-	out, err := exec.CommandContext(ctx, "lscpu", "-p=CPU,SOCKET,CORE,CACHE").CombinedOutput()
+	infos, err := cpu.Info()
 	if err != nil {
 		return nil, errors.As(err)
 	}
-	r := csv.NewReader(bytes.NewReader(out))
-	r.Comma = ','
-	r.Comment = '#'
-	records, err := r.ReadAll()
-	if err != nil {
-		return nil, errors.As(err)
-	}
-
 	groupInfo := &CpuGroupInfo{
 		Group: []CpuSocketGroup{},
 	}
-	for _, r := range records {
-		if len(r) != 4 {
-			return nil, errors.New("error cpu format").As(records)
-		}
-		cpuIndex, err := strconv.Atoi(r[0])
+	for _, info := range infos {
+		cpuIndex := int(info.CPU)
+		socket, err := strconv.Atoi(info.PhysicalID)
 		if err != nil {
-			return nil, errors.As(err)
+			return nil, errors.As(err, cpuIndex)
 		}
-		socket, err := strconv.Atoi(r[1])
+		core, err := strconv.Atoi(info.CoreID)
 		if err != nil {
-			return nil, errors.As(err)
+			return nil, errors.As(err, cpuIndex)
 		}
-		core, err := strconv.Atoi(r[2])
+		l3Index, err := GetCacheID(cpuIndex, 3)
 		if err != nil {
-			return nil, errors.As(err)
+			return nil, errors.As(err, cpuIndex)
 		}
-		caches := strings.Split(r[3], ":")
-		if len(caches) < 4 {
-			return nil, errors.New("error cache format").As(records)
-		}
-		l3Index, err := strconv.Atoi(caches[3])
-		if err != nil {
-			return nil, errors.New("error cache format").As(records)
-		}
+
 		cpuInfo := CpuInfo{
 			Index:   cpuIndex,
 			Socket:  socket,
