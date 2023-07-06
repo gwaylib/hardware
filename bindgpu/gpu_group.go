@@ -165,10 +165,6 @@ func initGpuGroup(ctx context.Context) error {
 	return nil
 }
 
-func init() {
-	initGpuGroup(context.TODO())
-}
-
 // TODO: limit call frequency
 func HasGPU(ctx context.Context) bool {
 	gpuLock.Lock()
