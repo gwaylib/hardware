@@ -155,7 +155,7 @@ func initGpuGroup(ctx context.Context) error {
 	if gpuGroup == nil {
 		group, err := GroupGpu(ctx)
 		if err != nil {
-			return errors.As(err)
+			log.Warn(errors.As(err))
 		}
 		gpuGroup = group
 		P2CardNum = len(group)
